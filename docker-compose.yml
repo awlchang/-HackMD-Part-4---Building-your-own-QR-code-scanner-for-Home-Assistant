@@ -46,15 +46,16 @@ services:
 
   bt-mqtt-gateway:
     container_name: bt-mqtt-gateway
-    image: akashic0616/bt-mqtt-gateway:latest    
+    image: zewelor2/bt-mqtt-gateway:latest    
     restart: always
     devices:
       - /dev/input:/dev/input
     #environment:
     #  - DEBUG=true
     volumes:
-      - /opt/bt-mqtt-gateway/workers:/application/workers
-      - /opt/bt-mqtt-gateway/config.yaml:/config.yaml
+      - ./bt-mqtt-gateway/workers:/application/workers
+      - ./bt-mqtt-gateway/config.yaml:/config.yaml
+      - ./bt-mqtt-gateway/gateway.py:/gateway.py
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
