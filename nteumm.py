@@ -101,7 +101,7 @@ class NteummWorker(BaseWorker):
                     if data.keystate == 1 and data.scancode != 42 and data.scancode != 54: # Catch only keydown, and not Enter
                         key_lookup = scancodes.get(data.scancode) or u'UNKNOWN:{}'.format(data.scancode) # lookup corresponding ascii value
                         if data.scancode == 28: # if enter detected print barcode value and then clear it
-                            _LOGGER.info("barcode")
+                            _LOGGER.info(barcode)
                             tag_scanned_payload = {
                                 self.reader[dev.path][0]: {"UID":barcode}
                             }
