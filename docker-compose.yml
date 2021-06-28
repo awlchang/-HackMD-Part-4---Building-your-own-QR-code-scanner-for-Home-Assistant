@@ -1,0 +1,64 @@
+version: '3.7'
+
+services:
+
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto:2.0.10
+    restart: always
+    # network_mode: host
+    ports:
+       - 1883:1883
+       - 9001:9001
+    volumes:
+      - /opt/data-mosquitto/config:/mosquitto/config
+      - /opt/data-mosquitto/data:/mosquitto/data
+      - /opt/data-mosquitto/log:/mosquitto/log
+
+  homeassistant:
+    container_name: homeassistant
+    image: homeassistant/raspberrypi4-homeassistant:stable
+    restart: always
+    privileged: true
+    network_mode: host
+    environment:
+      - DBUS_SYSTEM_BUS_ADDRESS=unix:path=/var/run/dbus/system_bus_socket
+      - TZ=Asia/Taipei
+    volumes:
+      - /opt/homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+    depends_on:
+      - mosquitto
+
+  hass-configurator:
+    container_name: hass-configurator
+    image: "causticlab/hass-configurator-docker:latest"
+    restart: always
+    privileged: true
+    ports:
+      - "3218:3218/tcp"
+    depends_on:
+      - homeassistant
+    volumes:
+      - /opt/configurator-config:/config
+      - /opt/homeassistant:/hass-config
+
+  bt-mqtt-gateway:
+    container_name: bt-mqtt-gateway
+    image: akashic0616/bt-mqtt-gateway:latest    
+    restart: always
+    devices:
+      - /dev/input:/dev/input
+    #environment:
+    #  - DEBUG=true
+    volumes:
+      - /opt/bt-mqtt-gateway/workers:/application/workers
+      - /opt/bt-mqtt-gateway/config.yaml:/config.yaml
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+    network_mode: host
+    depends_on:
+      - mosquitto

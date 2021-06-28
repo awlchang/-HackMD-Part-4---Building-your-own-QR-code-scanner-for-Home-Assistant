@@ -1,0 +1,40 @@
+mqtt:
+  host: 127.0.0.1
+  port: 1883
+  #topic_prefix: hostname         # All messages will have that prefix added, remove if you dont need this.
+  client_id: bt-mqtt-gateway
+  availability_topic: lwt_topic
+
+manager:
+  sensor_config:
+    topic: homeassistant
+    retain: true
+  topic_subscription:
+    update_all:
+      topic: homeassistant/status
+      payload: online
+  command_timeout: 35           # Timeout for worker operations. Can be removed if the default of 35 seconds is sufficient.
+  command_retries: 0            # Number of retries for worker commands. Default is 0. Might not be supported for all workers.
+  update_retries: 0             # Number of retries for worker updates. Default is 0. Might not be supported for all workers.
+  workers:
+    blunoled:  # 此名稱要對應
+      args:
+        devices:
+          greenled: 50:65:83:6F:54:7F            # The Mac address of the Bluno Beetle LED
+        topic_prefix: blunoled/bathroom
+        state_topic_prefix: blunoled/bathroom    # MQTT publish topic to Home Assistant
+      topic_subscription: blunoled/+/+/set
+      update_interval: 30                        # Update LED state per 30 seconds
+    nteumm:
+      args:
+        autodiscovery_prefix: homeassistant
+        # topic_prefix: nteumm
+        devices:
+          nteumm:
+            name: Nteumm
+            discovery_topic: nteumm/tag_scanned
+            discovery_value_template: "{{ value_json.Nteumm.UID }}"
+          #nteumm2:
+          #  name: Nteumm2
+          #  discovery_topic: nteumm2/tag_scanned
+          #  discovery_value_template: "{{ value_json.Nteumm2.UID }}"  
